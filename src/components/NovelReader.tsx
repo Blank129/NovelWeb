@@ -121,155 +121,164 @@ const NovelReader: React.FC<NovelReaderProps> = ({ novel, chapter, onBackToNovel
 
       {/* Mobile Settings Overlay */}
       {showMobileSettings && (
-        <div className="fixed inset-0 z-50 bg-black/80 md:hidden">
-          <div className="absolute inset-0 bg-gray-900 text-white">
+        <div className="fixed inset-0 z-50 md:hidden">
+          {/* Backdrop */}
+          <div 
+            className="absolute inset-0 bg-black/50"
+            onClick={() => setShowMobileSettings(false)}
+          ></div>
+          
+          {/* Settings Panel - Bottom 1/3 of screen */}
+          <div className="absolute bottom-0 left-0 right-0 bg-gray-900 text-white rounded-t-2xl shadow-2xl animate-slide-up" style={{ height: '33vh' }}>
             {/* Mobile Settings Header */}
-            <div className="flex items-center justify-between p-4 border-b border-gray-700">
-              <h2 className="text-lg font-semibold">Chapter {chapter}: Young Lord, Gu Change</h2>
+            <div className="flex items-center justify-between px-4 py-3 border-b border-gray-700">
+              <h2 className="text-base font-semibold">Chapter {chapter}: Young Lord, Gu Change</h2>
               <button
                 onClick={() => setShowMobileSettings(false)}
-                className="p-2 hover:bg-gray-700 rounded-lg transition-colors"
+                className="p-1 hover:bg-gray-700 rounded-lg transition-colors"
               >
-                <X className="h-6 w-6" />
+                <X className="h-5 w-5" />
               </button>
             </div>
 
-            {/* Navigation Controls */}
-            <div className="flex items-center justify-center space-x-8 py-6 border-b border-gray-700">
-              <button
-                onClick={handlePreviousChapter}
-                disabled={!hasPreviousChapter}
-                className={`p-3 rounded-lg transition-colors ${
-                  hasPreviousChapter 
-                    ? 'bg-gray-700 hover:bg-gray-600' 
-                    : 'bg-gray-800 opacity-50 cursor-not-allowed'
-                }`}
-              >
-                <ChevronLeft className="h-6 w-6" />
-              </button>
-
-              <button
-                onClick={onBackToNovel}
-                className="p-3 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
-              >
-                <Home className="h-6 w-6" />
-              </button>
-
-              <button
-                className="p-3 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
-              >
-                <Settings className="h-6 w-6" />
-              </button>
-
-              <button
-                onClick={handleNextChapter}
-                disabled={!hasNextChapter}
-                className={`p-3 rounded-lg transition-colors ${
-                  hasNextChapter 
-                    ? 'bg-gray-700 hover:bg-gray-600' 
-                    : 'bg-gray-800 opacity-50 cursor-not-allowed'
-                }`}
-              >
-                <ChevronRight className="h-6 w-6" />
-              </button>
-            </div>
-
-            {/* Font Family Selection */}
-            <div className="px-4 py-6 border-b border-gray-700">
-              <div className="flex justify-center space-x-2">
-                {fontOptions.map((font) => (
-                  <button
-                    key={font}
-                    onClick={() => setFontFamily(font)}
-                    className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                      fontFamily === font
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                    }`}
-                  >
-                    {font}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Font Size Slider */}
-            <div className="px-4 py-6 border-b border-gray-700">
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-2xl">A⁻</span>
-                <div className="flex-1 mx-4">
-                  <input
-                    type="range"
-                    min="14"
-                    max="28"
-                    step="2"
-                    value={fontSize}
-                    onChange={(e) => setFontSize(Number(e.target.value))}
-                    className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider"
-                    style={{
-                      background: `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${((fontSize - 14) / (28 - 14)) * 100}%, #374151 ${((fontSize - 14) / (28 - 14)) * 100}%, #374151 100%)`
-                    }}
-                  />
-                  <div className="flex justify-between text-xs text-gray-400 mt-1">
-                    <span>14</span>
-                    <span>16</span>
-                    <span className="text-blue-400 font-bold">{fontSize}</span>
-                    <span>20</span>
-                    <span>22</span>
-                    <span>24</span>
-                    <span>26</span>
-                    <span>28</span>
-                  </div>
-                </div>
-                <span className="text-2xl">A⁺</span>
-              </div>
-            </div>
-
-            {/* Translation Section */}
-            <div className="px-4 py-6 border-b border-gray-700">
-              <h3 className="text-center text-gray-400 mb-4">Translation</h3>
-              <div className="flex items-center space-x-4">
-                <select
-                  value={language}
-                  onChange={(e) => setLanguage(e.target.value)}
-                  className="flex-1 bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white"
-                >
-                  {languageOptions.map((lang) => (
-                    <option key={lang} value={lang}>{lang}</option>
-                  ))}
-                </select>
-                <button className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg font-medium transition-colors">
-                  Select Lang
-                </button>
-              </div>
-            </div>
-
-            {/* Text to Speech Section */}
-            <div className="px-4 py-6">
-              <h3 className="text-center text-gray-400 mb-4">Text to Speech</h3>
-              <div className="flex items-center justify-center space-x-4">
+            <div className="flex-1 overflow-y-auto">
+              {/* Navigation Controls */}
+              <div className="flex items-center justify-center space-x-6 py-3 border-b border-gray-700">
                 <button
-                  onClick={() => setIsPlaying(!isPlaying)}
-                  className="p-3 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
+                  onClick={handlePreviousChapter}
+                  disabled={!hasPreviousChapter}
+                  className={`p-2 rounded-lg transition-colors ${
+                    hasPreviousChapter 
+                      ? 'bg-gray-700 hover:bg-gray-600' 
+                      : 'bg-gray-800 opacity-50 cursor-not-allowed'
+                  }`}
                 >
-                  {isPlaying ? <Pause className="h-6 w-6" /> : <Play className="h-6 w-6" />}
-                </button>
-                
-                <button className="p-3 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors">
-                  <div className="w-6 h-6 bg-white rounded-sm"></div>
+                  <ChevronLeft className="h-5 w-5" />
                 </button>
 
-                <select className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm">
-                  <option>1</option>
-                  <option>2</option>
-                  <option>3</option>
-                </select>
+                <button
+                  onClick={onBackToNovel}
+                  className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
+                >
+                  <Home className="h-5 w-5" />
+                </button>
 
-                <select className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm">
-                  <option>Tiếng Anh Vương quốc Anh</option>
-                  <option>Tiếng Việt</option>
-                  <option>English US</option>
-                </select>
+                <button
+                  className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
+                >
+                  <Settings className="h-5 w-5" />
+                </button>
+
+                <button
+                  onClick={handleNextChapter}
+                  disabled={!hasNextChapter}
+                  className={`p-2 rounded-lg transition-colors ${
+                    hasNextChapter 
+                      ? 'bg-gray-700 hover:bg-gray-600' 
+                      : 'bg-gray-800 opacity-50 cursor-not-allowed'
+                  }`}
+                >
+                  <ChevronRight className="h-5 w-5" />
+                </button>
+              </div>
+
+              {/* Font Family Selection */}
+              <div className="px-4 py-3 border-b border-gray-700">
+                <div className="flex justify-center space-x-2">
+                  {fontOptions.map((font) => (
+                    <button
+                      key={font}
+                      onClick={() => setFontFamily(font)}
+                      className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                        fontFamily === font
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                      }`}
+                    >
+                      {font}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Font Size Slider */}
+              <div className="px-4 py-3 border-b border-gray-700">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xl">A⁻</span>
+                  <div className="flex-1 mx-3">
+                    <input
+                      type="range"
+                      min="14"
+                      max="28"
+                      step="2"
+                      value={fontSize}
+                      onChange={(e) => setFontSize(Number(e.target.value))}
+                      className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider"
+                      style={{
+                        background: `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${((fontSize - 14) / (28 - 14)) * 100}%, #374151 ${((fontSize - 14) / (28 - 14)) * 100}%, #374151 100%)`
+                      }}
+                    />
+                    <div className="flex justify-between text-xs text-gray-400 mt-1">
+                      <span>14</span>
+                      <span>16</span>
+                      <span className="text-blue-400 font-bold">{fontSize}</span>
+                      <span>20</span>
+                      <span>22</span>
+                      <span>24</span>
+                      <span>26</span>
+                      <span>28</span>
+                    </div>
+                  </div>
+                  <span className="text-xl">A⁺</span>
+                </div>
+              </div>
+
+              {/* Translation Section */}
+              <div className="px-4 py-3 border-b border-gray-700">
+                <h3 className="text-center text-gray-400 text-sm mb-2">Translation</h3>
+                <div className="flex items-center space-x-3">
+                  <select
+                    value={language}
+                    onChange={(e) => setLanguage(e.target.value)}
+                    className="flex-1 bg-gray-700 border border-gray-600 rounded-lg px-3 py-1.5 text-white text-sm"
+                  >
+                    {languageOptions.map((lang) => (
+                      <option key={lang} value={lang}>{lang}</option>
+                    ))}
+                  </select>
+                  <button className="bg-blue-600 hover:bg-blue-700 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors">
+                    Select Lang
+                  </button>
+                </div>
+              </div>
+
+              {/* Text to Speech Section */}
+              <div className="px-4 py-3">
+                <h3 className="text-center text-gray-400 text-sm mb-2">Text to Speech</h3>
+                <div className="flex items-center justify-center space-x-3">
+                  <button
+                    onClick={() => setIsPlaying(!isPlaying)}
+                    className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
+                  >
+                    {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
+                  </button>
+                  
+                  <button className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors">
+                    <div className="w-5 h-5 bg-white rounded-sm"></div>
+                  </button>
+
+                  <select className="bg-gray-700 border border-gray-600 rounded-lg px-2 py-1.5 text-white text-xs">
+                    <option>1</option>
+                    <option>2</option>
+                    <option>3</option>
+                  </select>
+
+                  <select className="bg-gray-700 border border-gray-600 rounded-lg px-2 py-1.5 text-white text-xs">
+                    <option>Tiếng Anh Vương quốc Anh</option>
+                    <option>Tiếng Việt</option>
+                    <option>English US</option>
+                  </select>
+                </div>
               </div>
             </div>
           </div>

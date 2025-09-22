@@ -61,6 +61,7 @@ const NovelReader: React.FC<NovelReaderProps> = ({ novel, chapter, onBackToNovel
   };
 
   const handleScreenTap = (e: React.MouseEvent) => {
+    // Only show settings on mobile/tablet screens
     if (window.innerWidth <= 768) {
       e.preventDefault();
       setShowMobileSettings(true);

@@ -18,7 +18,6 @@ const NovelReader: React.FC<NovelReaderProps> = ({ novel, chapter, onBackToNovel
   const [language, setLanguage] = useState('English');
   const [isPlaying, setIsPlaying] = useState(false);
 
-  // Sample chapter content
   const chapterContent = `
     Chapter ${chapter}: ${chapter === 1 ? 'Young Lord, Gu Change' : 'Adventure Continues'}
 
@@ -62,7 +61,6 @@ const NovelReader: React.FC<NovelReaderProps> = ({ novel, chapter, onBackToNovel
   };
 
   const handleScreenTap = (e: React.MouseEvent) => {
-    // Only show settings on mobile/tablet screens
     if (window.innerWidth <= 768) {
       e.preventDefault();
       setShowMobileSettings(true);

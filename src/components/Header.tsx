@@ -1,13 +1,25 @@
 import React, { useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Search, Menu, X, Book, User, Bookmark, Settings } from 'lucide-react';
 
-interface HeaderProps {
-  onBackToHome: () => void;
-}
-
-const Header: React.FC<HeaderProps> = ({ onBackToHome }) => {
+const Header: React.FC = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+
+  const handleLogoClick = () => {
+    navigate('/');
+  };
+
+  const handleRankingClick = () => {
+    navigate('/ranking');
+  };
+
+  // Don't show header on reader pages
+  if (location.pathname.includes('/chapter/')) {
+    return null;
+  }
 
   return (
     <header className="bg-gray-800 border-b border-gray-700 sticky top-0 z-50">
@@ -16,7 +28,7 @@ const Header: React.FC<HeaderProps> = ({ onBackToHome }) => {
           {/* Logo */}
           <div 
             className="flex items-center space-x-2 cursor-pointer hover:text-orange-400 transition-colors"
-            onClick={onBackToHome}
+            onClick={handleLogoClick}
           >
             <Book className="h-8 w-8 text-orange-500" />
             <span className="text-xl font-bold">NovelFire</span>
@@ -27,7 +39,12 @@ const Header: React.FC<HeaderProps> = ({ onBackToHome }) => {
             <a href="#" className="hover:text-orange-400 transition-colors">Home</a>
             <a href="#" className="hover:text-orange-400 transition-colors">Browse</a>
             <a href="#" className="hover:text-orange-400 transition-colors">Genres</a>
-            <a href="#" className="hover:text-orange-400 transition-colors">Rankings</a>
+            <button 
+              onClick={handleRankingClick}
+              className="hover:text-orange-400 transition-colors"
+            >
+              Rankings
+            </button>
             <a href="#" className="hover:text-orange-400 transition-colors">Latest</a>
           </nav>
 
@@ -89,7 +106,12 @@ const Header: React.FC<HeaderProps> = ({ onBackToHome }) => {
                 <a href="#" className="hover:text-orange-400 transition-colors">Home</a>
                 <a href="#" className="hover:text-orange-400 transition-colors">Browse</a>
                 <a href="#" className="hover:text-orange-400 transition-colors">Genres</a>
-                <a href="#" className="hover:text-orange-400 transition-colors">Rankings</a>
+                <button 
+                  onClick={handleRankingClick}
+                  className="hover:text-orange-400 transition-colors text-left"
+                >
+                  Rankings
+                </button>
                 <a href="#" className="hover:text-orange-400 transition-colors">Latest</a>
               </nav>
 

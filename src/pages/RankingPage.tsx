@@ -1,13 +1,10 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Star, Eye, TrendingUp, Crown, Medal, Award, ChevronLeft, Filter } from 'lucide-react';
 import { Novel } from '../App';
 
-interface RankingPageProps {
-  onNovelSelect: (novel: Novel) => void;
-  onBackToHome: () => void;
-}
-
-const RankingPage: React.FC<RankingPageProps> = ({ onNovelSelect, onBackToHome }) => {
+const RankingPage: React.FC = () => {
+  const navigate = useNavigate();
   const [activeCategory, setActiveCategory] = useState<'popular' | 'rating' | 'trending' | 'completed'>('popular');
   const [timeFilter, setTimeFilter] = useState<'daily' | 'weekly' | 'monthly' | 'all'>('weekly');
 
@@ -206,6 +203,14 @@ const RankingPage: React.FC<RankingPageProps> = ({ onNovelSelect, onBackToHome }
 
   const rankedNovels = getRankingData();
 
+  const handleNovelSelect = (novel: Novel) => {
+    navigate(`/novel/${novel.id}`);
+  };
+
+  const handleBackToHome = () => {
+    navigate('/');
+  };
+
   return (
     <div className="min-h-screen bg-gray-900 text-white">
       {/* Header */}
@@ -280,7 +285,7 @@ const RankingPage: React.FC<RankingPageProps> = ({ onNovelSelect, onBackToHome }
               {/* 2nd Place */}
               <div className="order-1 md:order-1">
                 <div
-                  onClick={() => onNovelSelect(rankedNovels[1])}
+                  onClick={() => handleNovelSelect(rankedNovels[1])}
                   className="bg-gradient-to-br from-gray-700 to-gray-800 rounded-2xl p-6 text-center cursor-pointer hover:scale-105 transition-all duration-300 shadow-xl border-2 border-gray-500"
                 >
                   <div className="relative mb-4">
@@ -307,7 +312,7 @@ const RankingPage: React.FC<RankingPageProps> = ({ onNovelSelect, onBackToHome }
               {/* 1st Place */}
               <div className="order-2 md:order-2">
                 <div
-                  onClick={() => onNovelSelect(rankedNovels[0])}
+                  onClick={() => handleNovelSelect(rankedNovels[0])}
                   className="bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-2xl p-6 text-center cursor-pointer hover:scale-105 transition-all duration-300 shadow-2xl border-2 border-yellow-400 transform md:-translate-y-4"
                 >
                   <div className="relative mb-4">
@@ -334,7 +339,7 @@ const RankingPage: React.FC<RankingPageProps> = ({ onNovelSelect, onBackToHome }
               {/* 3rd Place */}
               <div className="order-3 md:order-3">
                 <div
-                  onClick={() => onNovelSelect(rankedNovels[2])}
+                  onClick={() => handleNovelSelect(rankedNovels[2])}
                   className="bg-gradient-to-br from-amber-600 to-amber-700 rounded-2xl p-6 text-center cursor-pointer hover:scale-105 transition-all duration-300 shadow-xl border-2 border-amber-500"
                 >
                   <div className="relative mb-4">
@@ -370,7 +375,7 @@ const RankingPage: React.FC<RankingPageProps> = ({ onNovelSelect, onBackToHome }
               return (
                 <div
                   key={novel.id}
-                  onClick={() => onNovelSelect(novel)}
+                  onClick={() => handleNovelSelect(novel)}
                   className={`bg-gray-800 rounded-xl p-6 hover:bg-gray-700 transition-all duration-200 cursor-pointer group border-l-4 ${
                     rank <= 3 ? 'border-orange-500' : 'border-gray-600'
                   }`}

@@ -1,14 +1,25 @@
 import React, { useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Search, Menu, X, Book, User, Bookmark, Settings } from 'lucide-react';
 
-interface HeaderProps {
-  onBackToHome: () => void;
-  onShowRanking?: () => void;
-}
-
-const Header: React.FC<HeaderProps> = ({ onBackToHome, onShowRanking }) => {
+const Header: React.FC = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+
+  const handleLogoClick = () => {
+    navigate('/');
+  };
+
+  const handleRankingClick = () => {
+    navigate('/ranking');
+  };
+
+  // Don't show header on reader pages
+  if (location.pathname.includes('/chapter/')) {
+    return null;
+  }
 
   return (
     <header className="bg-gray-800 border-b border-gray-700 sticky top-0 z-50">
@@ -17,7 +28,7 @@ const Header: React.FC<HeaderProps> = ({ onBackToHome, onShowRanking }) => {
           {/* Logo */}
           <div 
             className="flex items-center space-x-2 cursor-pointer hover:text-orange-400 transition-colors"
-            onClick={onBackToHome}
+            onClick={handleLogoClick}
           >
             <Book className="h-8 w-8 text-orange-500" />
             <span className="text-xl font-bold">NovelFire</span>
@@ -29,7 +40,7 @@ const Header: React.FC<HeaderProps> = ({ onBackToHome, onShowRanking }) => {
             <a href="#" className="hover:text-orange-400 transition-colors">Browse</a>
             <a href="#" className="hover:text-orange-400 transition-colors">Genres</a>
             <button 
-              onClick={onShowRanking}
+              onClick={handleRankingClick}
               className="hover:text-orange-400 transition-colors"
             >
               Rankings
@@ -96,7 +107,7 @@ const Header: React.FC<HeaderProps> = ({ onBackToHome, onShowRanking }) => {
                 <a href="#" className="hover:text-orange-400 transition-colors">Browse</a>
                 <a href="#" className="hover:text-orange-400 transition-colors">Genres</a>
                 <button 
-                  onClick={onShowRanking}
+                  onClick={handleRankingClick}
                   className="hover:text-orange-400 transition-colors text-left"
                 >
                   Rankings

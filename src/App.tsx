@@ -1,14 +1,11 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { Routes, Route } from 'react-router-dom';
 import Header from './components/Header';
-import Hero from './components/Hero';
-import FeaturedNovels from './components/FeaturedNovels';
-import Categories from './components/Categories';
-import PopularNovels from './components/PopularNovels';
-import RecentUpdates from './components/RecentUpdates';
 import Footer from './components/Footer';
-import NovelReader from './components/NovelReader';
-import NovelDetail from './components/NovelDetail';
+import HomePage from './pages/HomePage';
 import RankingPage from './pages/RankingPage';
+import NovelDetailPage from './pages/NovelDetailPage';
+import NovelReaderPage from './pages/NovelReaderPage';
 
 export interface Novel {
   id: string;
@@ -26,75 +23,18 @@ export interface Novel {
 }
 
 function App() {
-  const [currentView, setCurrentView] = useState<'home' | 'novel' | 'reader' | 'ranking'>('home');
-  const [selectedNovel, setSelectedNovel] = useState<Novel | null>(null);
-  const [currentChapter, setCurrentChapter] = useState(1);
-
-  const handleNovelSelect = (novel: Novel) => {
-    setSelectedNovel(novel);
-    setCurrentView('novel');
-  };
-
-  const handleStartReading = (novel: Novel, chapter: number = 1) => {
-    setSelectedNovel(novel);
-    setCurrentChapter(chapter);
-    setCurrentView('reader');
-  };
-
-  const handleBackToHome = () => {
-    setCurrentView('home');
-    setSelectedNovel(null);
-  };
-
-  const handleShowRanking = () => {
-    setCurrentView('ranking');
-  };
-
-  const handleBackToNovel = () => {
-    if (selectedNovel) {
-      setCurrentView('novel');
-    }
-  };
-
   return (
     <div className="min-h-screen bg-gray-900 text-white">
-      <Header onBackToHome={handleBackToHome} onShowRanking={handleShowRanking} />
+      <Header />
       
-      {currentView === 'home' && (
-        <>
-          <Hero onNovelSelect={handleNovelSelect} />
-          <FeaturedNovels onNovelSelect={handleNovelSelect} />
-          <Categories />
-          <PopularNovels onNovelSelect={handleNovelSelect} />
-          <RecentUpdates onNovelSelect={handleNovelSelect} />
-        </>
-      )}
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/ranking" element={<RankingPage />} />
+        <Route path="/novel/:id" element={<NovelDetailPage />} />
+        <Route path="/novel/:id/chapter/:chapter" element={<NovelReaderPage />} />
+      </Routes>
 
-      {currentView === 'novel' && selectedNovel && (
-        <NovelDetail 
-          novel={selectedNovel} 
-          onStartReading={handleStartReading}
-          onBackToHome={handleBackToHome}
-        />
-      )}
-
-      {currentView === 'ranking' && (
-        <RankingPage 
-          onNovelSelect={handleNovelSelect}
-          onBackToHome={handleBackToHome}
-        />
-      )}
-
-      {currentView === 'reader' && selectedNovel && (
-        <NovelReader 
-          novel={selectedNovel}
-          chapter={currentChapter}
-          onBackToNovel={handleBackToNovel}
-          onChapterChange={setCurrentChapter}
-        />
-      )}
-
-      {currentView === 'home' && <Footer />}
+      <Footer />
     </div>
   );
 }

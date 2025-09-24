@@ -1,15 +1,13 @@
 import React, { useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, Settings, Bookmark, Menu, Sun, Moon, Type, Palette, X, Home, Play, Pause, Volume2 } from 'lucide-react';
 import { Novel } from '../App';
 
-interface NovelReaderProps {
-  novel: Novel;
-  chapter: number;
-  onBackToNovel: () => void;
-  onChapterChange: (chapter: number) => void;
-}
-
-const NovelReader: React.FC<NovelReaderProps> = ({ novel, chapter, onBackToNovel, onChapterChange }) => {
+const NovelReaderPage: React.FC = () => {
+  const { id, chapter } = useParams<{ id: string; chapter: string }>();
+  const navigate = useNavigate();
+  const currentChapter = parseInt(chapter || '1');
+  
   const [showMobileSettings, setShowMobileSettings] = useState(false);
   const [fontSize, setFontSize] = useState(18);
   const [darkMode, setDarkMode] = useState(true);
@@ -18,8 +16,24 @@ const NovelReader: React.FC<NovelReaderProps> = ({ novel, chapter, onBackToNovel
   const [language, setLanguage] = useState('English');
   const [isPlaying, setIsPlaying] = useState(false);
 
+  // Mock data - trong thực tế sẽ fetch từ API
+  const novel: Novel = {
+    id: id || '1',
+    title: 'Solo Leveling',
+    author: 'Chugong',
+    coverUrl: 'https://images.pexels.com/photos/1591056/pexels-photo-1591056.jpeg?auto=compress&cs=tinysrgb&w=400',
+    description: 'E-rank hunter Jinwoo Sung has no money, no talent, and no prospects to speak of—until he\'s selected by a mysterious System.',
+    genre: ['Action', 'Fantasy', 'Adventure'],
+    rating: 4.9,
+    chapters: 270,
+    status: 'completed',
+    lastUpdated: '1 day ago',
+    views: 5247892,
+    tags: ['Leveling', 'System', 'OP MC']
+  };
+
   const chapterContent = `
-    Chapter ${chapter}: ${chapter === 1 ? 'Young Lord, Gu Change' : 'Adventure Continues'}
+    Chapter ${currentChapter}: ${currentChapter === 1 ? 'Young Lord, Gu Change' : 'Adventure Continues'}
 
     The morning sun cast long shadows across the ancient training grounds as Jin-Woo stepped forward. His heart pounded with anticipation, knowing that today would mark the beginning of his true journey.
 
@@ -45,23 +59,26 @@ const NovelReader: React.FC<NovelReaderProps> = ({ novel, chapter, onBackToNovel
   `;
 
   const totalChapters = novel.chapters;
-  const hasNextChapter = chapter < totalChapters;
-  const hasPreviousChapter = chapter > 1;
+  const hasNextChapter = currentChapter < totalChapters;
+  const hasPreviousChapter = currentChapter > 1;
 
   const handleNextChapter = () => {
     if (hasNextChapter) {
-      onChapterChange(chapter + 1);
+      navigate(`/novel/${id}/chapter/${currentChapter + 1}`);
     }
   };
 
   const handlePreviousChapter = () => {
     if (hasPreviousChapter) {
-      onChapterChange(chapter - 1);
+      navigate(`/novel/${id}/chapter/${currentChapter - 1}`);
     }
   };
 
+  const handleBackToNovel = () => {
+    navigate(`/novel/${id}`);
+  };
+
   const handleScreenTap = (e: React.MouseEvent) => {
-    // Only show settings on mobile/tablet screens
     if (window.innerWidth <= 768) {
       e.preventDefault();
       setShowMobileSettings(true);
@@ -75,14 +92,14 @@ const NovelReader: React.FC<NovelReaderProps> = ({ novel, chapter, onBackToNovel
     <div className={`min-h-screen transition-colors duration-300 ${
       darkMode ? 'bg-gray-900 text-white' : 'bg-white text-gray-900'
     }`}>
-      {/* Desktop Header - Always visible on desktop */}
+      {/* Desktop Header */}
       <div className={`hidden md:block sticky top-0 z-50 border-b transition-all duration-300 ${
         darkMode ? 'bg-gray-800 border-gray-700' : 'bg-gray-100 border-gray-200'
       }`}>
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <button
-              onClick={onBackToNovel}
+              onClick={handleBackToNovel}
               className={`flex items-center space-x-2 transition-colors ${
                 darkMode ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-gray-900'
               }`}
@@ -94,7 +111,7 @@ const NovelReader: React.FC<NovelReaderProps> = ({ novel, chapter, onBackToNovel
             <div className="text-center">
               <h1 className="font-semibold truncate max-w-xs">{novel.title}</h1>
               <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                Chapter {chapter} of {totalChapters}
+                Chapter {currentChapter} of {totalChapters}
               </p>
             </div>
 
@@ -121,17 +138,14 @@ const NovelReader: React.FC<NovelReaderProps> = ({ novel, chapter, onBackToNovel
       {/* Mobile Settings Overlay */}
       {showMobileSettings && (
         <div className="fixed inset-0 z-50 md:hidden">
-          {/* Backdrop */}
           <div 
             className="absolute inset-0 bg-black/50"
             onClick={() => setShowMobileSettings(false)}
           ></div>
           
-          {/* Settings Panel - Bottom 1/3 of screen */}
           <div className="absolute bottom-0 left-0 right-0 bg-gray-900 text-white rounded-t-2xl shadow-2xl animate-slide-up" style={{ height: '33vh' }}>
-            {/* Mobile Settings Header */}
             <div className="flex items-center justify-between px-4 py-3 border-b border-gray-700">
-              <h2 className="text-base font-semibold">Chapter {chapter}: Young Lord, Gu Change</h2>
+              <h2 className="text-base font-semibold">Chapter {currentChapter}: Young Lord, Gu Change</h2>
               <button
                 onClick={() => setShowMobileSettings(false)}
                 className="p-1 hover:bg-gray-700 rounded-lg transition-colors"
@@ -156,7 +170,7 @@ const NovelReader: React.FC<NovelReaderProps> = ({ novel, chapter, onBackToNovel
                 </button>
 
                 <button
-                  onClick={onBackToNovel}
+                  onClick={handleBackToNovel}
                   className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
                 >
                   <Home className="h-5 w-5" />
@@ -213,18 +227,10 @@ const NovelReader: React.FC<NovelReaderProps> = ({ novel, chapter, onBackToNovel
                       value={fontSize}
                       onChange={(e) => setFontSize(Number(e.target.value))}
                       className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider"
-                      style={{
-                        background: `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${((fontSize - 14) / (28 - 14)) * 100}%, #374151 ${((fontSize - 14) / (28 - 14)) * 100}%, #374151 100%)`
-                      }}
                     />
                     <div className="flex justify-between text-xs text-gray-400 mt-1">
                       <span>14</span>
-                      <span>16</span>
                       <span className="text-blue-400 font-bold">{fontSize}</span>
-                      <span>20</span>
-                      <span>22</span>
-                      <span>24</span>
-                      <span>26</span>
                       <span>28</span>
                     </div>
                   </div>
@@ -267,15 +273,9 @@ const NovelReader: React.FC<NovelReaderProps> = ({ novel, chapter, onBackToNovel
                   </button>
 
                   <select className="bg-gray-700 border border-gray-600 rounded-lg px-2 py-1.5 text-white text-xs">
-                    <option>1</option>
-                    <option>2</option>
-                    <option>3</option>
-                  </select>
-
-                  <select className="bg-gray-700 border border-gray-600 rounded-lg px-2 py-1.5 text-white text-xs">
-                    <option>Tiếng Anh Vương quốc Anh</option>
-                    <option>Tiếng Việt</option>
-                    <option>English US</option>
+                    <option>1x</option>
+                    <option>1.5x</option>
+                    <option>2x</option>
                   </select>
                 </div>
               </div>
@@ -328,14 +328,14 @@ const NovelReader: React.FC<NovelReaderProps> = ({ novel, chapter, onBackToNovel
 
             <div className="text-center">
               <div className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                {chapter} / {totalChapters}
+                {currentChapter} / {totalChapters}
               </div>
               <div className={`w-48 h-2 rounded-full mt-1 ${
                 darkMode ? 'bg-gray-700' : 'bg-gray-300'
               }`}>
                 <div
                   className="h-full bg-orange-500 rounded-full transition-all duration-300"
-                  style={{ width: `${(chapter / totalChapters) * 100}%` }}
+                  style={{ width: `${(currentChapter / totalChapters) * 100}%` }}
                 ></div>
               </div>
             </div>
@@ -358,7 +358,7 @@ const NovelReader: React.FC<NovelReaderProps> = ({ novel, chapter, onBackToNovel
         </div>
       </div>
 
-      {/* Mobile Navigation Footer - Only visible when settings are closed */}
+      {/* Mobile Navigation Footer */}
       {!showMobileSettings && (
         <div className={`md:hidden fixed bottom-0 left-0 right-0 border-t transition-all duration-300 ${
           darkMode ? 'bg-gray-800 border-gray-700' : 'bg-gray-100 border-gray-200'
@@ -382,14 +382,14 @@ const NovelReader: React.FC<NovelReaderProps> = ({ novel, chapter, onBackToNovel
 
               <div className="text-center">
                 <div className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                  {chapter} / {totalChapters}
+                  {currentChapter} / {totalChapters}
                 </div>
                 <div className={`w-32 h-2 rounded-full mt-1 ${
                   darkMode ? 'bg-gray-700' : 'bg-gray-300'
                 }`}>
                   <div
                     className="h-full bg-orange-500 rounded-full transition-all duration-300"
-                    style={{ width: `${(chapter / totalChapters) * 100}%` }}
+                    style={{ width: `${(currentChapter / totalChapters) * 100}%` }}
                   ></div>
                 </div>
               </div>
@@ -412,19 +412,8 @@ const NovelReader: React.FC<NovelReaderProps> = ({ novel, chapter, onBackToNovel
           </div>
         </div>
       )}
-
-      {/* Mobile Reading Hint - Only show when settings are closed */}
-      {!showMobileSettings && (
-        <div className="md:hidden fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 pointer-events-none">
-          <div className={`px-4 py-2 rounded-full text-sm font-medium transition-opacity duration-1000 ${
-            darkMode ? 'bg-gray-800/80 text-gray-300' : 'bg-white/80 text-gray-700'
-          } opacity-0 animate-pulse`}>
-            Tap screen for settings
-          </div>
-        </div>
-      )}
     </div>
   );
 };
 
-export default NovelReader;
+export default NovelReaderPage;

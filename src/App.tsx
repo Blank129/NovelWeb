@@ -8,6 +8,7 @@ import RecentUpdates from './components/RecentUpdates';
 import Footer from './components/Footer';
 import NovelReader from './components/NovelReader';
 import NovelDetail from './components/NovelDetail';
+import RankingPage from './pages/RankingPage';
 
 export interface Novel {
   id: string;
@@ -25,7 +26,7 @@ export interface Novel {
 }
 
 function App() {
-  const [currentView, setCurrentView] = useState<'home' | 'novel' | 'reader'>('home');
+  const [currentView, setCurrentView] = useState<'home' | 'novel' | 'reader' | 'ranking'>('home');
   const [selectedNovel, setSelectedNovel] = useState<Novel | null>(null);
   const [currentChapter, setCurrentChapter] = useState(1);
 
@@ -45,6 +46,10 @@ function App() {
     setSelectedNovel(null);
   };
 
+  const handleShowRanking = () => {
+    setCurrentView('ranking');
+  };
+
   const handleBackToNovel = () => {
     if (selectedNovel) {
       setCurrentView('novel');
@@ -53,7 +58,7 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
-      <Header onBackToHome={handleBackToHome} />
+      <Header onBackToHome={handleBackToHome} onShowRanking={handleShowRanking} />
       
       {currentView === 'home' && (
         <>
@@ -69,6 +74,13 @@ function App() {
         <NovelDetail 
           novel={selectedNovel} 
           onStartReading={handleStartReading}
+          onBackToHome={handleBackToHome}
+        />
+      )}
+
+      {currentView === 'ranking' && (
+        <RankingPage 
+          onNovelSelect={handleNovelSelect}
           onBackToHome={handleBackToHome}
         />
       )}

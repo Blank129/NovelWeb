@@ -3,9 +3,10 @@ import { Search, Menu, X, Book, User, Bookmark, Settings } from 'lucide-react';
 
 interface HeaderProps {
   onBackToHome: () => void;
+  onShowRanking?: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ onBackToHome }) => {
+const Header: React.FC<HeaderProps> = ({ onBackToHome, onShowRanking }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -27,7 +28,12 @@ const Header: React.FC<HeaderProps> = ({ onBackToHome }) => {
             <a href="#" className="hover:text-orange-400 transition-colors">Home</a>
             <a href="#" className="hover:text-orange-400 transition-colors">Browse</a>
             <a href="#" className="hover:text-orange-400 transition-colors">Genres</a>
-            <a href="#" className="hover:text-orange-400 transition-colors">Rankings</a>
+            <button 
+              onClick={onShowRanking}
+              className="hover:text-orange-400 transition-colors"
+            >
+              Rankings
+            </button>
             <a href="#" className="hover:text-orange-400 transition-colors">Latest</a>
           </nav>
 
@@ -89,7 +95,12 @@ const Header: React.FC<HeaderProps> = ({ onBackToHome }) => {
                 <a href="#" className="hover:text-orange-400 transition-colors">Home</a>
                 <a href="#" className="hover:text-orange-400 transition-colors">Browse</a>
                 <a href="#" className="hover:text-orange-400 transition-colors">Genres</a>
-                <a href="#" className="hover:text-orange-400 transition-colors">Rankings</a>
+                <button 
+                  onClick={onShowRanking}
+                  className="hover:text-orange-400 transition-colors text-left"
+                >
+                  Rankings
+                </button>
                 <a href="#" className="hover:text-orange-400 transition-colors">Latest</a>
               </nav>
 

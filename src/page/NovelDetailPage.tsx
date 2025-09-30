@@ -9,6 +9,7 @@ import {
   Heart,
   Play,
   ChevronLeft,
+  ChevronRight,
   User,
 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
@@ -23,7 +24,8 @@ const NovelDetailPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<
     "overview" | "chapters" | "reviews"
   >("overview");
-  const [showAllChapters, setShowAllChapters] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const chaptersPerPage = 50;
 
   const dispatch = useDispatch();
   const { detailNovel, loading } = useSelector((state: any) => state.novels);
@@ -100,6 +102,160 @@ const NovelDetailPage: React.FC = () => {
     }
     return views;
   };
+
+  // Pagination logic
+  const totalChapters = detailNovel.chapters?.length || 0;
+  const totalPages = Math.ceil(totalChapters / chaptersPerPage);
+  const indexOfLastChapter = currentPage * chaptersPerPage;
+  const indexOfFirstChapter = indexOfLastChapter - chaptersPerPage;
+  const currentChapters = detailNovel.chapters?.slice(
+    indexOfFirstChapter,
+    indexOfLastChapter
+  );
+
+  const handlePageChange = (pageNumber: number) => {
+    setCurrentPage(pageNumber);
+    window.scrollTo({ top: 500, behavior: "smooth" });
+  };
+
+  // Render pagination buttons
+  const renderPagination = () => {
+    const pages = [];
+    const maxVisiblePages = 5;
+    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+    if (endPage - startPage < maxVisiblePages - 1) {
+      startPage = Math.max(1, endPage - maxVisiblePages + 1);
+    }
+
+    // Previous button
+    pages.push(
+      <button
+        key="prev"
+        onClick={() => handlePageChange(currentPage - 1)}
+        disabled={currentPage === 1}
+        className={`px-3 py-2 rounded-lg ${
+          currentPage === 1
+            ? "bg-gray-700 text-gray-500 cursor-not-allowed"
+            : "bg-gray-700 hover:bg-gray-600 text-white"
+        }`}
+      >
+        <ChevronLeft className="h-4 w-4" />
+      </button>
+    );
+
+    // First page
+    if (startPage > 1) {
+      pages.push(
+        <button
+          key={1}
+          onClick={() => handlePageChange(1)}
+          className="px-4 py-2 rounded-lg bg-gray-700 hover:bg-gray-600 text-white"
+        >
+          1
+        </button>
+      );
+      if (startPage > 2) {
+        pages.push(
+          <span key="dots1" className="px-2 text-gray-500">
+            ...
+          </span>
+        );
+      }
+    }
+
+    // Page numbers
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(
+        <button
+          key={i}
+          onClick={() => handlePageChange(i)}
+          className={`px-4 py-2 rounded-lg ${
+            currentPage === i
+              ? "bg-orange-600 text-white"
+              : "bg-gray-700 hover:bg-gray-600 text-white"
+          }`}
+        >
+          {i}
+        </button>
+      );
+    }
+
+    // Last page
+    if (endPage < totalPages) {
+      if (endPage < totalPages - 1) {
+        pages.push(
+          <span key="dots2" className="px-2 text-gray-500">
+            ...
+          </span>
+        );
+      }
+      pages.push(
+        <button
+          key={totalPages}
+          onClick={() => handlePageChange(totalPages)}
+          className="px-4 py-2 rounded-lg bg-gray-700 hover:bg-gray-600 text-white"
+        >
+          {totalPages}
+        </button>
+      );
+    }
+
+    // Next button
+    pages.push(
+      <button
+        key="next"
+        onClick={() => handlePageChange(currentPage + 1)}
+        disabled={currentPage === totalPages}
+        className={`px-3 py-2 rounded-lg ${
+          currentPage === totalPages
+            ? "bg-gray-700 text-gray-500 cursor-not-allowed"
+            : "bg-gray-700 hover:bg-gray-600 text-white"
+        }`}
+      >
+        <ChevronRight className="h-4 w-4" />
+      </button>
+    );
+
+    return pages;
+  };
+
+  // Render chapter list component
+  const renderChapterList = () => (
+    <>
+      <div className="flex items-center justify-between mb-6">
+        <h3 className="text-xl font-semibold">Chapter List</h3>
+        <span className="text-gray-400">
+          {totalChapters} chapters available
+        </span>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
+        {currentChapters?.map((chapter: any) => (
+          <div
+            key={chapter.id}
+            onClick={() => handleStartReading(chapter.id)}
+            className="flex items-center justify-between p-4 bg-gray-800 hover:bg-gray-700 rounded-lg cursor-pointer transition-colors group"
+          >
+            <div className="flex-1 min-w-0">
+              <h4 className="font-medium group-hover:text-orange-400 transition-colors truncate">
+                {chapter.title}
+              </h4>
+              <p className="text-sm text-gray-400">Chapter {chapter.order}</p>
+            </div>
+            <ChevronLeft className="h-5 w-5 text-gray-400 rotate-180 group-hover:text-orange-400 transition-colors flex-shrink-0 ml-2" />
+          </div>
+        ))}
+      </div>
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-2 flex-wrap">
+          {renderPagination()}
+        </div>
+      )}
+    </>
+  );
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
@@ -270,7 +426,10 @@ const NovelDetailPage: React.FC = () => {
             ].map((tab) => (
               <button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id as any)}
+                onClick={() => {
+                  setActiveTab(tab.id as any);
+                  setCurrentPage(1);
+                }}
                 className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
                   activeTab === tab.id
                     ? "border-orange-500 text-orange-400"
@@ -286,98 +445,14 @@ const NovelDetailPage: React.FC = () => {
         {/* Tab Content */}
         {activeTab === "overview" && (
           <div>
-            <div className="prose prose-invert max-w-none">
+            <div className="prose prose-invert max-w-none mb-8">
               <p>{detailNovel.description}</p>
             </div>
-            <div className="mt-10">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-semibold">Chapter List</h3>
-                <span className="text-gray-400">
-                  {detailNovel.chapters?.length || 0} chapters available
-                </span>
-              </div>
-
-              <div className="space-y-2">
-                {detailNovel.chapters
-                  ?.slice(0, showAllChapters ? undefined : 20)
-                  .map((chapter: any) => (
-                    <div
-                      key={chapter.id}
-                      onClick={() => handleStartReading(chapter.id)}
-                      className="flex items-center justify-between p-4 bg-gray-800 hover:bg-gray-700 rounded-lg cursor-pointer transition-colors group"
-                    >
-                      <div>
-                        <h4 className="font-medium group-hover:text-orange-400 transition-colors">
-                          {chapter.title}
-                        </h4>
-                        <p className="text-sm text-gray-400">
-                          Chapter {chapter.order}
-                        </p>
-                      </div>
-                      <ChevronLeft className="h-5 w-5 text-gray-400 rotate-180 group-hover:text-orange-400 transition-colors" />
-                    </div>
-                  ))}
-
-                {detailNovel.chapters?.length > 20 && !showAllChapters && (
-                  <div className="text-center py-4">
-                    <button
-                      onClick={() => setShowAllChapters(true)}
-                      className="text-orange-400 hover:text-orange-300 font-medium"
-                    >
-                      Load more chapters ({detailNovel.chapters.length - 20}{" "}
-                      remaining)
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
+            <div className="mt-10">{renderChapterList()}</div>
           </div>
         )}
 
-        {activeTab === "chapters" && (
-          <div>
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl font-semibold">Chapter List</h3>
-              <span className="text-gray-400">
-                {detailNovel.chapters?.length || 0} chapters available
-              </span>
-            </div>
-
-            <div className="space-y-2">
-              {detailNovel.chapters
-                ?.slice(0, showAllChapters ? undefined : 20)
-                .map((chapter: any) => (
-                  <div
-                    key={chapter.id}
-                    onClick={() => handleStartReading(chapter.id)}
-                    className="flex items-center justify-between p-4 bg-gray-800 hover:bg-gray-700 rounded-lg cursor-pointer transition-colors group"
-                  >
-                    <div>
-                      <h4 className="font-medium group-hover:text-orange-400 transition-colors">
-                        {chapter.title}
-                      </h4>
-                      <p className="text-sm text-gray-400">
-                        Chapter {chapter.order}
-                      </p>
-                    </div>
-                    <ChevronLeft className="h-5 w-5 text-gray-400 rotate-180 group-hover:text-orange-400 transition-colors" />
-                  </div>
-                ))}
-
-              {detailNovel.chapters?.length > 20 && !showAllChapters && (
-                <div className="text-center py-4">
-                  <button
-                    onClick={() => setShowAllChapters(true)}
-                    className="text-orange-400 hover:text-orange-300 font-medium"
-                  >
-                    Load more chapters ({detailNovel.chapters.length - 20}{" "}
-                    remaining)
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
+        {activeTab === "chapters" && <div>{renderChapterList()}</div>}
 
         {activeTab === "reviews" && (
           <div>

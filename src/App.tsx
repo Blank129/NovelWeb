@@ -1,7 +1,7 @@
 import { Routes, Route } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
-import HomePage from './page/HomaePage';
+import HomePage from './page/HomePage';
 import RankingPage from './page/RankingPage';
 import NovelDetailPage from './page/NovelDetailPage';
 import NovelReaderPage from './page/NovelReaderPage';
@@ -30,8 +30,8 @@ function App() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/ranking" element={<RankingPage />} />
-        <Route path="/novel/:id" element={<NovelDetailPage />} />
-        <Route path="/novel/:id/chapter/:chapter" element={<NovelReaderPage />} />
+        <Route path="/novel/:title" element={<NovelDetailPage />} />
+        <Route path="/novel/:title/chapter/:chapter" element={<NovelReaderPage />} />
       </Routes>
 
       <Footer />

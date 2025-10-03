@@ -1,17 +1,30 @@
 import React, { useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Star, Eye, Clock, Bookmark, Share2, Heart, Play, ChevronLeft, User } from 'lucide-react';
 import { Novel } from '../App';
 
-interface NovelDetailProps {
-  novel: Novel;
-  onStartReading: (novel: Novel, chapter: number) => void;
-  onBackToHome: () => void;
-}
-
-const NovelDetail: React.FC<NovelDetailProps> = ({ novel, onStartReading, onBackToHome }) => {
+const NovelDetailPage: React.FC = () => {
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
   const [activeTab, setActiveTab] = useState<'overview' | 'chapters' | 'reviews'>('overview');
+
+  // Mock data - trong thực tế sẽ fetch từ API dựa trên id
+  const novel: Novel = {
+    id: id || '1',
+    title: 'Solo Leveling',
+    author: 'Chugong',
+    coverUrl: 'https://images.pexels.com/photos/1591056/pexels-photo-1591056.jpeg?auto=compress&cs=tinysrgb&w=400',
+    description: 'E-rank hunter Jinwoo Sung has no money, no talent, and no prospects to speak of—until he\'s selected by a mysterious System that grants him the unique ability to grow stronger, possibly beyond any known limits.',
+    genre: ['Action', 'Fantasy', 'Adventure'],
+    rating: 4.9,
+    chapters: 270,
+    status: 'completed',
+    lastUpdated: '1 day ago',
+    views: 5247892,
+    tags: ['Leveling', 'System', 'OP MC']
+  };
 
   const chapters = Array.from({ length: novel.chapters }, (_, i) => ({
     number: i + 1,
@@ -26,13 +39,21 @@ const NovelDetail: React.FC<NovelDetailProps> = ({ novel, onStartReading, onBack
     { user: 'FantasyFan', rating: 5, comment: 'One of the best novels I\'ve read this year. Highly recommended!', date: '2 weeks ago' }
   ];
 
+  const handleStartReading = (chapter: number = 1) => {
+    navigate(`/novel/${novel.id}/chapter/${chapter}`);
+  };
+
+  const handleBackToHome = () => {
+    navigate('/');
+  };
+
   return (
     <div className="min-h-screen bg-gray-900 text-white">
       {/* Header */}
       <div className="bg-gray-800 border-b border-gray-700 px-4 py-4">
         <div className="max-w-7xl mx-auto flex items-center">
           <button
-            onClick={onBackToHome}
+            onClick={handleBackToHome}
             className="flex items-center space-x-2 text-gray-400 hover:text-white transition-colors"
           >
             <ChevronLeft className="h-5 w-5" />
@@ -55,7 +76,7 @@ const NovelDetail: React.FC<NovelDetailProps> = ({ novel, onStartReading, onBack
               
               <div className="space-y-3">
                 <button
-                  onClick={() => onStartReading(novel, 1)}
+                  onClick={() => handleStartReading(1)}
                   className="w-full flex items-center justify-center space-x-2 bg-orange-600 hover:bg-orange-700 px-6 py-3 rounded-lg font-medium transition-colors"
                 >
                   <Play className="h-5 w-5" />
@@ -213,7 +234,7 @@ const NovelDetail: React.FC<NovelDetailProps> = ({ novel, onStartReading, onBack
               {chapters.slice(0, 20).map((chapter) => (
                 <div
                   key={chapter.number}
-                  onClick={() => onStartReading(novel, chapter.number)}
+                  onClick={() => handleStartReading(chapter.number)}
                   className="flex items-center justify-between p-4 bg-gray-800 hover:bg-gray-700 rounded-lg cursor-pointer transition-colors group"
                 >
                   <div>
@@ -283,4 +304,4 @@ const NovelDetail: React.FC<NovelDetailProps> = ({ novel, onStartReading, onBack
   );
 };
 
-export default NovelDetail;
+export default NovelDetailPage;

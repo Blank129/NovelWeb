@@ -1,56 +1,43 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Star, TrendingUp, Eye } from 'lucide-react';
 import { Novel } from '../App';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchTop3ViewNovels } from '../services/api';
+import { useNavigate } from 'react-router-dom';
 
 interface PopularNovelsProps {
   onNovelSelect: (novel: Novel) => void;
 }
 
 const PopularNovels: React.FC<PopularNovelsProps> = ({ onNovelSelect }) => {
-  const novels: Novel[] = [
-    {
-      id: '6',
-      title: 'Demon Slayer Academy',
-      author: 'Koyoharu Gotouge',
-      coverUrl: 'https://images.pexels.com/photos/1366919/pexels-photo-1366919.jpeg?auto=compress&cs=tinysrgb&w=400',
-      description: 'Young warriors train to become demon slayers in this action-packed academy story.',
-      genre: ['Action', 'Supernatural', 'School'],
-      rating: 4.4,
-      chapters: 189,
-      status: 'ongoing',
-      lastUpdated: '6 hours ago',
-      views: 1847293,
-      tags: ['Demons', 'Training', 'Brotherhood']
-    },
-    {
-      id: '7',
-      title: 'Cultivation Chronicles',
-      author: 'Er Gen',
-      coverUrl: 'https://images.pexels.com/photos/1366919/pexels-photo-1366919.jpeg?auto=compress&cs=tinysrgb&w=400',
-      description: 'Follow the journey of a young cultivator as he rises through the ranks to achieve immortality.',
-      genre: ['Cultivation', 'Xianxia', 'Adventure'],
-      rating: 4.3,
-      chapters: 1247,
-      status: 'ongoing',
-      lastUpdated: '12 hours ago',
-      views: 3247851,
-      tags: ['Immortality', 'Power', 'Revenge']
-    },
-    {
-      id: '8',
-      title: 'Magic Academy Elite',
-      author: 'J.K. Sterling',
-      coverUrl: 'https://images.pexels.com/photos/1366919/pexels-photo-1366919.jpeg?auto=compress&cs=tinysrgb&w=400',
-      description: 'A young mage discovers ancient secrets while attending the most prestigious magic academy.',
-      genre: ['Magic', 'School', 'Mystery'],
-      rating: 4.2,
-      chapters: 234,
-      status: 'ongoing',
-      lastUpdated: '1 day ago',
-      views: 1923847,
-      tags: ['Magic School', 'Ancient Secrets', 'Friendship']
-    }
-  ];
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { top3NovelView, loading } = useSelector(
+    (state: any) => state.novels
+  );
+
+  useEffect(() => {
+    dispatch(fetchTop3ViewNovels() as any);
+  }, [dispatch]);
+
+  // Chuyển đổi views từ string (VD: "17.8M") sang number
+  const parseViews = (viewsStr: string): number => {
+    if (!viewsStr) return 0;
+    const value = parseFloat(viewsStr.replace(/[^0-9.]/g, ''));
+    if (viewsStr.includes('M')) return value * 1000000;
+    if (viewsStr.includes('K')) return value * 1000;
+    return value;
+  };
+
+  const convertToKebabCase = (input: string) => {
+      return input.split(" ").join("-");
+    };
+  
+    const handleNovelSelect = (novel: Novel) => {
+      navigate(`/novel/${convertToKebabCase(novel.title)}`, {
+        state: { id: novel.id },
+      });
+    };
 
   return (
     <section className="py-16 bg-gray-900">
@@ -65,74 +52,78 @@ const PopularNovels: React.FC<PopularNovelsProps> = ({ onNovelSelect }) => {
               Most Popular
             </h2>
           </div>
-          <button className="text-orange-400 hover:text-orange-300 font-medium transition-colors">
+          <button className="text-orange-400 hover:text-orange-300 font-medium transition-colors" onClick={() => navigate("/ranking")}>
             View All →
           </button>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {novels.map((novel, index) => (
-            <div
-              key={novel.id}
-              onClick={() => onNovelSelect(novel)}
-              className="bg-gray-800 rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer group"
-            >
-              <div className="flex">
-                <div className="flex-shrink-0 relative">
-                  <img
-                    src={novel.coverUrl}
-                    alt={novel.title}
-                    className="w-32 h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                  <div className="absolute top-2 left-2 bg-orange-600 text-white text-xs font-bold px-2 py-1 rounded">
-                    #{index + 1}
-                  </div>
-                </div>
-                
-                <div className="flex-1 p-6">
-                  <h3 className="text-white font-bold text-xl mb-2 group-hover:text-orange-400 transition-colors">
-                    {novel.title}
-                  </h3>
-                  <p className="text-gray-400 text-sm mb-3">by {novel.author}</p>
-                  
-                  <div className="flex items-center space-x-4 mb-3 text-sm">
-                    <div className="flex items-center space-x-1">
-                      <Star className="h-4 w-4 text-yellow-400 fill-current" />
-                      <span className="text-white">{novel.rating}</span>
-                    </div>
-                    <div className="flex items-center space-x-1 text-gray-400">
-                      <Eye className="h-4 w-4" />
-                      <span>{Math.floor(novel.views / 1000)}K views</span>
-                    </div>
-                    <div className={`px-2 py-1 rounded text-xs font-medium ${
-                      novel.status === 'ongoing' ? 'bg-green-600 text-green-100' :
-                      novel.status === 'completed' ? 'bg-blue-600 text-blue-100' :
-                      'bg-yellow-600 text-yellow-100'
-                    }`}>
-                      {novel.status.toUpperCase()}
+        {loading ? (
+          <div className="text-center text-white py-12">Loading...</div>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {top3NovelView?.map((novel: any, index: number) => (
+              <div
+                key={novel.id}
+                onClick={() => handleNovelSelect(novel)}
+                className="bg-gray-800 rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer group"
+              >
+                <div className="flex">
+                  <div className="flex-shrink-0 relative">
+                    <img
+                      src={novel.image}
+                      alt={novel.title}
+                      className="w-32 h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                    <div className="absolute top-2 left-2 bg-orange-600 text-white text-xs font-bold px-2 py-1 rounded">
+                      #{index + 1}
                     </div>
                   </div>
                   
-                  <p className="text-gray-300 text-sm mb-4 line-clamp-3">
-                    {novel.description}
-                  </p>
-                  
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {novel.genre.map((genre) => (
-                      <span key={genre} className="px-2 py-1 bg-gray-700 text-gray-300 rounded text-xs">
-                        {genre}
-                      </span>
-                    ))}
-                  </div>
-                  
-                  <div className="text-sm text-gray-400">
-                    {novel.chapters} chapters • Updated {novel.lastUpdated}
+                  <div className="flex-1 p-6">
+                    <h3 className="text-white font-bold text-xl mb-2 group-hover:text-orange-400 transition-colors">
+                      {novel.title}
+                    </h3>
+                    <p className="text-gray-400 text-sm mb-3">by {novel.author}</p>
+                    
+                    <div className="flex items-center space-x-4 mb-3 text-sm">
+                      <div className="flex items-center space-x-1">
+                        <Star className="h-4 w-4 text-yellow-400 fill-current" />
+                        <span className="text-white">{novel.rating}</span>
+                      </div>
+                      <div className="flex items-center space-x-1 text-gray-400">
+                        <Eye className="h-4 w-4" />
+                        <span>{novel.views}</span>
+                      </div>
+                      <div className={`px-2 py-1 rounded text-xs font-medium ${
+                        novel.status === 'Ongoing' ? 'bg-green-600 text-green-100' :
+                        novel.status === 'Completed' ? 'bg-blue-600 text-blue-100' :
+                        'bg-yellow-600 text-yellow-100'
+                      }`}>
+                        {novel.status.toUpperCase()}
+                      </div>
+                    </div>
+                    
+                    <p className="text-gray-300 text-sm mb-4 line-clamp-3">
+                      {novel.description}
+                    </p>
+                    
+                    <div className="flex flex-wrap gap-2">
+                      {novel.categories?.slice(0, 3).map((category: string) => (
+                        <span key={category} className="px-2 py-1 bg-gray-700 text-gray-300 rounded text-xs">
+                          {category}
+                        </span>
+                      ))}
+                    </div>
+{/*                     
+                    <div className="text-sm text-gray-400">
+                      {novel.chapters} chapters
+                    </div> */}
                   </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );

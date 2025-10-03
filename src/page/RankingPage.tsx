@@ -20,7 +20,7 @@ const RankingPage: React.FC = () => {
   const [activeCategory, setActiveCategory] = useState<
     "popular" | "rating" | "trending" | "completed"
   >("popular");
-  
+
   const dispatch = useDispatch();
   const { list, loading } = useSelector((state: any) => state.novels);
 
@@ -45,10 +45,10 @@ const RankingPage: React.FC = () => {
   // Helper function to convert views string to number
   const parseViews = (viewsStr: string): number => {
     if (!viewsStr) return 0;
-    const cleanStr = viewsStr.replace(/,/g, '');
-    if (cleanStr.includes('M')) {
+    const cleanStr = viewsStr.replace(/,/g, "");
+    if (cleanStr.includes("M")) {
       return parseFloat(cleanStr) * 1000000;
-    } else if (cleanStr.includes('K')) {
+    } else if (cleanStr.includes("K")) {
       return parseFloat(cleanStr) * 1000;
     }
     return parseFloat(cleanStr) || 0;
@@ -59,24 +59,26 @@ const RankingPage: React.FC = () => {
     if (!list || list.length === 0) return [];
 
     // Map API data to Novel format
-    const mappedNovels: Novel[] = list.map((novel: any, index: number) => ({
+    const mappedNovels: Novel[] = list.map((novel: any) => ({
       id: novel.id,
-      title: novel.title || 'Unknown Title',
-      author: novel.author || 'Unknown Author',
-      coverUrl: novel.image || 'https://images.pexels.com/photos/1366919/pexels-photo-1366919.jpeg?auto=compress&cs=tinysrgb&w=400',
-      description: novel.description || 'No description available.',
+      title: novel.title || "Unknown Title",
+      author: novel.author || "Unknown Author",
+      coverUrl:
+        novel.image ||
+        "https://images.pexels.com/photos/1366919/pexels-photo-1366919.jpeg?auto=compress&cs=tinysrgb&w=400",
+      description: novel.description || "No description available.",
       genre: novel.categories || [],
       rating: novel.rating || 0,
       chapters: novel.chapters || 0,
-      status: novel.status?.toLowerCase() || 'ongoing',
-      lastUpdated: '1 day ago',
-      views: parseViews(novel.views || '0'),
+      status: novel.status?.toLowerCase() || "ongoing",
+      lastUpdated: "1 day ago",
+      views: parseViews(novel.views || "0"),
       tags: novel.categories?.slice(0, 3) || [],
     }));
 
     // Sort based on active category
     let sortedNovels = [...mappedNovels];
-    
+
     switch (activeCategory) {
       case "popular":
         sortedNovels.sort((a, b) => b.views - a.views);
@@ -93,7 +95,9 @@ const RankingPage: React.FC = () => {
         });
         break;
       case "completed":
-        sortedNovels = sortedNovels.filter((novel) => novel.status === "completed");
+        sortedNovels = sortedNovels.filter(
+          (novel) => novel.status === "completed"
+        );
         break;
       default:
         break;
@@ -118,16 +122,14 @@ const RankingPage: React.FC = () => {
   };
 
   const rankedNovels = getRankingData();
+  
   const convertToKebabCase = (input: string) => {
-  return input
-    .split(' ')           
-    .join('-');        
-}
+    return input.split(" ").join("-");
+  };
 
   const handleNovelSelect = (novel: Novel) => {
-    console.log("Selected Novel:", novel);
     navigate(`/novel/${convertToKebabCase(novel.title)}`, {
-      state: {id: novel.id}
+      state: { id: novel.id },
     });
   };
 
@@ -426,7 +428,9 @@ const RankingPage: React.FC = () => {
             {/* Empty State */}
             {rankedNovels.length === 0 && !loading && (
               <div className="text-center py-12">
-                <p className="text-gray-400 text-lg">No novels found in this category.</p>
+                <p className="text-gray-400 text-lg">
+                  No novels found in this category.
+                </p>
               </div>
             )}
           </div>

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   Star,
   Eye,
@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchNovelById } from "../services/api";
+import Loading from "../components/Loading";
 
 const NovelDetailPage: React.FC = () => {
   const location = useLocation();
@@ -37,13 +38,7 @@ const NovelDetailPage: React.FC = () => {
   }, [dispatch, id]);
 
   // Hiển thị loading state
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center">
-        <div className="text-xl">Loading...</div>
-      </div>
-    );
-  }
+  if (loading) return <Loading />
 
   // Kiểm tra nếu không có dữ liệu
   if (!detailNovel) {
@@ -77,10 +72,22 @@ const NovelDetailPage: React.FC = () => {
     },
   ];
 
-  const handleStartReading = (chapterId?: number) => {
-    const firstChapterId = chapterId || detailNovel.chapters?.[0]?.id;
+  const convertToKebabCase = (input: string) => {
+    return input.split(" ").join("-");
+  };
+
+  const handleStartReading = (chapterSelect?: any) => {
+    const firstChapterId = chapterSelect?.order || detailNovel.chapters?.[0]?.id;
     if (firstChapterId) {
-      navigate(`/novel/${detailNovel.id}/chapter/${firstChapterId}`);
+      navigate(`/novel/${convertToKebabCase(detailNovel.title)}/chapter/${firstChapterId}`, {
+        state: { id: detailNovel.id },
+      });
+      window.scrollTo({ top: 0});
+    } else {
+      navigate(`/novel/${convertToKebabCase(detailNovel.title)}/chapter/1`, {
+        state: { id: detailNovel.id },
+      });
+      window.scrollTo({ top: 0});
     }
   };
 
@@ -235,7 +242,7 @@ const NovelDetailPage: React.FC = () => {
         {currentChapters?.map((chapter: any) => (
           <div
             key={chapter.id}
-            onClick={() => handleStartReading(chapter.id)}
+            onClick={() => handleStartReading(chapter)}
             className="flex items-center justify-between p-4 bg-gray-800 hover:bg-gray-700 rounded-lg cursor-pointer transition-colors group"
           >
             <div className="flex-1 min-w-0">

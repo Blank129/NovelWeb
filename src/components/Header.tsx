@@ -1,12 +1,17 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Search, Menu, X, Book, User, Bookmark, Settings } from 'lucide-react';
+import { Search, Menu, X, Book, User, Bookmark, Settings, LogOut, Clock } from 'lucide-react';
+import { useAppDispatch, useAppSelector } from '../app/store';
+import { signOut } from '../features/auth/authSlice';
 
 const Header: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const dispatch = useAppDispatch();
+  const { user } = useAppSelector((state) => state.auth);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [showUserMenu, setShowUserMenu] = useState(false);
 
   const handleLogoClick = () => {
     navigate('/');
@@ -14,6 +19,28 @@ const Header: React.FC = () => {
 
   const handleRankingClick = () => {
     navigate('/ranking');
+  };
+
+  const handleGenresClick = () => {
+    navigate('/genres');
+  };
+
+  const handleHomeClick = () => {
+    navigate('/');
+  };
+
+  const handleHistoryClick = () => {
+    if (user) {
+      navigate('/history');
+    } else {
+      navigate('/login');
+    }
+  };
+
+  const handleLogout = async () => {
+    await dispatch(signOut());
+    setShowUserMenu(false);
+    navigate('/');
   };
 
   // Don't show header on reader pages
@@ -36,10 +63,15 @@ const Header: React.FC = () => {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
-            <a href="#" className="hover:text-orange-400 transition-colors">Home</a>
+            <button onClick={handleHomeClick} className="hover:text-orange-400 transition-colors">Home</button>
             <a href="#" className="hover:text-orange-400 transition-colors">Browse</a>
-            <a href="#" className="hover:text-orange-400 transition-colors">Genres</a>
-            <button 
+            <button
+              onClick={handleGenresClick}
+              className="hover:text-orange-400 transition-colors"
+            >
+              Genres
+            </button>
+            <button
               onClick={handleRankingClick}
               className="hover:text-orange-400 transition-colors"
             >
@@ -64,16 +96,51 @@ const Header: React.FC = () => {
 
           {/* User Actions */}
           <div className="hidden md:flex items-center space-x-4">
-            <button className="p-2 hover:bg-gray-700 rounded-lg transition-colors">
-              <Bookmark className="h-5 w-5" />
-            </button>
-            <button className="p-2 hover:bg-gray-700 rounded-lg transition-colors">
-              <Settings className="h-5 w-5" />
-            </button>
-            <button className="flex items-center space-x-2 bg-orange-600 hover:bg-orange-700 px-4 py-2 rounded-lg transition-colors">
-              <User className="h-4 w-4" />
-              <span>Login</span>
-            </button>
+            {user ? (
+              <>
+                <button
+                  onClick={handleHistoryClick}
+                  className="p-2 hover:bg-gray-700 rounded-lg transition-colors"
+                  title="Lịch sử đọc"
+                >
+                  <Clock className="h-5 w-5" />
+                </button>
+                <button className="p-2 hover:bg-gray-700 rounded-lg transition-colors">
+                  <Bookmark className="h-5 w-5" />
+                </button>
+                <button className="p-2 hover:bg-gray-700 rounded-lg transition-colors">
+                  <Settings className="h-5 w-5" />
+                </button>
+                <div className="relative">
+                  <button
+                    onClick={() => setShowUserMenu(!showUserMenu)}
+                    className="flex items-center space-x-2 bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-lg transition-colors"
+                  >
+                    <User className="h-4 w-4" />
+                    <span className="max-w-[100px] truncate">{user.email}</span>
+                  </button>
+                  {showUserMenu && (
+                    <div className="absolute right-0 mt-2 w-48 bg-gray-800 border border-gray-700 rounded-lg shadow-lg py-2">
+                      <button
+                        onClick={handleLogout}
+                        className="w-full px-4 py-2 text-left hover:bg-gray-700 transition-colors flex items-center space-x-2"
+                      >
+                        <LogOut className="h-4 w-4" />
+                        <span>Đăng xuất</span>
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </>
+            ) : (
+              <button
+                onClick={() => navigate('/login')}
+                className="flex items-center space-x-2 bg-orange-600 hover:bg-orange-700 px-4 py-2 rounded-lg transition-colors"
+              >
+                <User className="h-4 w-4" />
+                <span>Đăng nhập</span>
+              </button>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -103,10 +170,15 @@ const Header: React.FC = () => {
               
               {/* Mobile Navigation */}
               <nav className="flex flex-col space-y-3">
-                <a href="#" className="hover:text-orange-400 transition-colors">Home</a>
+                <button onClick={handleHomeClick} className="hover:text-orange-400 transition-colors text-left">Home</button>
                 <a href="#" className="hover:text-orange-400 transition-colors">Browse</a>
-                <a href="#" className="hover:text-orange-400 transition-colors">Genres</a>
-                <button 
+                <button
+                  onClick={handleGenresClick}
+                  className="hover:text-orange-400 transition-colors text-left"
+                >
+                  Genres
+                </button>
+                <button
                   onClick={handleRankingClick}
                   className="hover:text-orange-400 transition-colors text-left"
                 >
@@ -116,19 +188,57 @@ const Header: React.FC = () => {
               </nav>
 
               {/* Mobile User Actions */}
-              <div className="flex items-center justify-between pt-4 border-t border-gray-700">
-                <div className="flex items-center space-x-4">
-                  <button className="p-2 hover:bg-gray-700 rounded-lg transition-colors">
-                    <Bookmark className="h-5 w-5" />
-                  </button>
-                  <button className="p-2 hover:bg-gray-700 rounded-lg transition-colors">
-                    <Settings className="h-5 w-5" />
-                  </button>
-                </div>
-                <button className="flex items-center space-x-2 bg-orange-600 hover:bg-orange-700 px-4 py-2 rounded-lg transition-colors">
-                  <User className="h-4 w-4" />
-                  <span>Login</span>
-                </button>
+              <div className="pt-4 border-t border-gray-700">
+                {user ? (
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-4">
+                        <button
+                          onClick={handleHistoryClick}
+                          className="p-2 hover:bg-gray-700 rounded-lg transition-colors"
+                          title="Lịch sử đọc"
+                        >
+                          <Clock className="h-5 w-5" />
+                        </button>
+                        <button className="p-2 hover:bg-gray-700 rounded-lg transition-colors">
+                          <Bookmark className="h-5 w-5" />
+                        </button>
+                        <button className="p-2 hover:bg-gray-700 rounded-lg transition-colors">
+                          <Settings className="h-5 w-5" />
+                        </button>
+                      </div>
+                      <div className="flex items-center space-x-2 text-sm">
+                        <User className="h-4 w-4" />
+                        <span className="max-w-[120px] truncate">{user.email}</span>
+                      </div>
+                    </div>
+                    <button
+                      onClick={handleLogout}
+                      className="w-full flex items-center justify-center space-x-2 bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg transition-colors"
+                    >
+                      <LogOut className="h-4 w-4" />
+                      <span>Đăng xuất</span>
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-4">
+                      <button className="p-2 hover:bg-gray-700 rounded-lg transition-colors">
+                        <Bookmark className="h-5 w-5" />
+                      </button>
+                      <button className="p-2 hover:bg-gray-700 rounded-lg transition-colors">
+                        <Settings className="h-5 w-5" />
+                      </button>
+                    </div>
+                    <button
+                      onClick={() => navigate('/login')}
+                      className="flex items-center space-x-2 bg-orange-600 hover:bg-orange-700 px-4 py-2 rounded-lg transition-colors"
+                    >
+                      <User className="h-4 w-4" />
+                      <span>Đăng nhập</span>
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           </div>
